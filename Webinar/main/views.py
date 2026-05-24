@@ -47,22 +47,31 @@ def webinar(request):
     })
 
 
+# Test that sahand if not work do not merge that!! I add all filter in backend doing
 def get_webinar_by_js(request):
     page = request.GET.get("page", 1)
-    # For search
     q = request.GET.get("q", "").strip()
-    # webinars = Webinar.objects.prefetch_related("category").all()
-    webinars = Webinar.objects.order_by("name")
+    cats = request.GET.getlist("cats") 
+    price = request.GET.get("price", "any")
+    
+    webinars = Webinar.objects.prefetch_related("category").order_by("name")
     if q:
         webinars = webinars.filter(name__icontains=q)
-    paginator = Paginator(webinars, 10)
 
+    if cats and "All" not in cats:
+        webinars = webinars.filter(category__name__in=cats).distinct()
+
+    if price == "free":
+        webinars = webinars.filter(price=0)
+    elif price == "under20":
+        webinars = webinars.filter(price__lt=20)
+    elif price == "under50":
+        webinars = webinars.filter(price__lt=50)
+
+    paginator = Paginator(webinars, 10)
     current_page = paginator.get_page(page)
 
-    # AJAX REQUEST
-
     data = []
-
     for webinar in current_page:
         data.append({
             "title": webinar.name,
@@ -73,10 +82,7 @@ def get_webinar_by_js(request):
             "seatsLeft": webinar.stock or 0,
             "link": webinar.link,
             "image": webinar.title_image.url if webinar.title_image else "",
-
-            "categories": list(
-                webinar.category.values_list("name", flat=True)
-            )
+            "categories": list(webinar.category.values_list("name", flat=True))
         })
 
     return JsonResponse({
@@ -86,11 +92,3 @@ def get_webinar_by_js(request):
         "current_page": current_page.number,
         "total_pages": paginator.num_pages
     })
-# def webinar(request):
-#     # pagination!!!!!!!!
-#     # c = Category.objects.get(id=18)
-#     w = Webinar.objects.all()
-#     math = Webinar.objects.get(name="math")
-#     # math.category.add(c)
-#     print(list(math.category.values_list("name", flat=True)))
-#     return render(request, 'webinars.html', {'webinars':w,"user":request.user})
