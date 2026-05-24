@@ -1,6 +1,8 @@
 from django.contrib.auth import authenticate
 from django.shortcuts import render, redirect
 from models.models import *
+
+
 # Create your views here.
 def home(request):
     webinars = Webinar.objects.all()
@@ -11,37 +13,82 @@ def home(request):
         if cat.name == 'Special':
             print(i.name)
             special_webinars.append(i)
-    return render(request, 'home.html', {'webinars':webinars, 'special_webinars':special_webinars})
+    return render(request, 'index.html',
+                  {'webinars': webinars, 'special_webinars': special_webinars, "user": request.user})
+
+
 def contact(request):
     return render(request, 'contact-us.html')
+
+
 def about_us(request):
     return render(request, 'about-us.html')
 
+
+from django.core.paginator import Paginator
+from django.http import JsonResponse
+
+
 def webinar(request):
-    w = Webinar.objects.all()
-    spe = []
-    sp = Webinar.objects.all()
-    for i in sp:
-        if i.type == 'public':
-            type = Category_Webinar.objects.filter(webinar_id=i.id).first()
+    page = request.GET.get("page", 1)
 
-            cat = Type.objects.filter(id=type.category_id).first()
+    # webinars = Webinar.objects.prefetch_related("category").all()
+    webinars = Webinar.objects.order_by("name")
 
-            if cat.name == 'Special':
-                spe.append(i)
-    sli = []
-    sl = Webinar.objects.all()
-    for i in sl:
-        if i.type == 'public':
-            type = Category_Webinar.objects.filter(webinar_id=i.id).first()
-            cat = Type.objects.filter(id=type.category_id).first()
-            if cat.name == 'Sliding':
-                sli.append(i)
-    for i in sp:
-        if i.type == 'public':
-            type = Category_Webinar.objects.filter(webinar_id=i.id).first()
-            cat = Type.objects.filter(id=type.category_id).first()
-            if cat.name == 'Special':
-                sli.append(i)
+    paginator = Paginator(webinars, 1)
 
-    return render(request, 'webinar.html', {'webinars':w, 'special_webinars':spe, 'slider_webinars':sli})
+    current_page = paginator.get_page(page)
+
+    # AJAX REQUEST
+
+    print("current page ", current_page)
+    return render(request, "webinars.html", {
+        "webinars": current_page
+    })
+
+
+def get_webinar_by_js(request):
+    page = request.GET.get("page", 1)
+
+    # webinars = Webinar.objects.prefetch_related("category").all()
+    webinars = Webinar.objects.order_by("name")
+
+    paginator = Paginator(webinars, 10)
+
+    current_page = paginator.get_page(page)
+
+    # AJAX REQUEST
+
+    data = []
+
+    for webinar in current_page:
+        data.append({
+            "title": webinar.name,
+            "blurb": webinar.description,
+            "price": float(webinar.price),
+            "id": webinar.id,
+            "when": webinar.hosted_at.strftime("%b %d, %Y · %I:%M %p"),
+            "seatsLeft": webinar.stock or 0,
+            "link": webinar.link,
+            "image": webinar.title_image.url if webinar.title_image else "",
+
+            "categories": list(
+                webinar.category.values_list("name", flat=True)
+            )
+        })
+
+    return JsonResponse({
+        "webinars": data,
+        "has_next": current_page.has_next(),
+        "has_previous": current_page.has_previous(),
+        "current_page": current_page.number,
+        "total_pages": paginator.num_pages
+    })
+# def webinar(request):
+#     # pagination!!!!!!!!
+#     # c = Category.objects.get(id=18)
+#     w = Webinar.objects.all()
+#     math = Webinar.objects.get(name="math")
+#     # math.category.add(c)
+#     print(list(math.category.values_list("name", flat=True)))
+#     return render(request, 'webinars.html', {'webinars':w,"user":request.user})

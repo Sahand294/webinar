@@ -129,7 +129,7 @@
 
                     <div class="stock">tickets left: {{ webinar.stock }}</div>
                     {% if webinar.stock > 0 %}
-                        {% if logged %}
+                        {% if user.is_authenticated %}
                         <button class="add-btn" id="addBtn" type="submit">buy ticket</button>
                         {% else %}
                         <button class="add-btn" id="addBtn" disabled>login first</button>

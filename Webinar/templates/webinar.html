@@ -1,82 +1,156 @@
-{% extends 'home.html' %}
-{% block extra_css %}
+{% extends "index.html" %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/webinar.css' %}">
-<link rel="stylesheet" href="{% static 'css/base.css' %}">
+{% block css %}
+  <link rel="stylesheet" href="{% static 'css/webinar.css' %}" />
 {% endblock %}
 {% block content %}
+  <main class="wrap section" style="padding-top:48px">
+
+    {% if not w %}
+      <div class="empty">
+        <h3>Webinar not found.</h3>
+        <p class="muted">It may have ended or been moved.</p>
+        <p style="margin-top:18px">
+          <a class="btn btn-primary" href="{% url 'webinars' %}">Browse all webinars →</a>
+        </p>
+      </div>
+
+    {% elif edit and role == "HOST" %}
+      {# ---------- HOST EDIT VIEW ---------- #}
+      <a class="wd-back" href="?">← Back to webinar</a>
+
+      <form class="wd-card" method="post" action="" style="max-width:780px">
+        {% csrf_token %}
+        <h2 class="wd-title" style="font-size:36px">Edit webinar</h2>
+
+        <div class="field">
+          <label>Title</label>
+          <input name="title" value="{{ w.title }}" required />
+        </div>
 
 
-<section class="section">
-<h2>Special Webinars</h2>
-<div class="grid">
-{% for webinar in special_webinars %}
-<a class="card-link" href="{% url 'webinar_detail' webinar.id %}">
-<div class="card">
-<img src="{{webinar.image.url}}">
-<h3>{{webinar.name}} <span class="special-badge">SPECIAL</span></h3>
-<div class="price">${{webinar.price}}</div>
-<div class="seats">Seats left: {{webinar.stock}}</div>
+        <div class="field">
+          <label>Description</label>
+          <textarea name="description" required>{{ w.description }}</textarea>
+        </div>
 
-</div>
-</a>
-{% endfor %}
-</div>
-</section>
+{#        <div class="field">#}
+{#          <label>Image URL</label>#}
+{#          <input name="image" value="{{ w.image }}" placeholder="https://..." />#}
+{#        </div>#}
 
-<section class="section">
-<h2>Featured</h2>
-<div class="slider-wrapper">
-<button class="slider-btn prev" id="prev">❮</button>
-<div class="slider" id="sliderContainer">
-{% for webinar in slider_webinars %}
-<a class="slide-link" href="{% url 'webinar_detail' webinar.id %}">
-<div class="slide-card">
-<img src="{{webinar.image.url}}">
-<h3>{{webinar.name}}</h3>
-<div class="price">${{webinar.price}}</div>
-<div class="seats">Seats left: {{webinar.stock}}</div>
-</div>
-</a>
-{% endfor %}
-</div>
-<button class="slider-btn next" id="next">❯</button>
-</div>
-</section>
+        <div class="field-row">
+          <div class="field">
+            <label>Ticket expiration</label>
+            <input name="expiresAt" type="datetime-local" value="{{ w.ticket_expiration|date:'Y-m-d\TH:i' }}" />
+          </div>
+          <div class="field">
+            <label>Tickets left</label>
+            <input name="stock" type="number" min="0" value="{{ w.stock }}" />
+          </div>
+        </div>
 
-<section class="section">
-<h2>All Webinars</h2>
-<div class="grid">
-{% for webinar in webinars %}
-<a class="card-link" href="{% url 'webinar_detail' webinar.id %}">
-<div class="card">
-<img src="{{webinar.image.url}}">
-<h3>{{webinar.name}}</h3>
-<div class="price">${{webinar.price}}</div>
-<div class="seats">Seats left: {{webinar.stock}}</div>
+        <div class="field">
+          <label>Hidden join link</label>
+          <input name="link" value="{{ w.link }}" placeholder="https://..." />
+        </div>
 
-</div>
-</a>
-{% endfor %}
-</div>
-</section>
-{% endblock %}
-{% block extra_js %}
-<script>
-const slider=document.getElementById("sliderContainer")
-const next=document.getElementById("next")
-const prev=document.getElementById("prev")
+        <div class="wd-actions">
+          <button type="submit" class="btn btn-primary">Save changes</button>
+          <a href="?" class="btn btn-ghost">Cancel</a>
+        </div>
+      </form>
 
-if(next && prev && slider){
-next.onclick=()=>{slider.scrollBy({left:280,behavior:"smooth"})}
-prev.onclick=()=>{slider.scrollBy({left:-280,behavior:"smooth"})}
+    {% else %}
+      {# ---------- READ VIEW ---------- #}
+      <a class="wd-back" href="{% url 'webinars' %}">← All webinars</a>
 
-setInterval(()=>{
-slider.scrollBy({left:280,behavior:"smooth"})
-if(slider.scrollLeft + slider.clientWidth >= slider.scrollWidth){
-slider.scrollTo({left:0,behavior:"smooth"})
-}
-},4000)
-}
-</script>
+      <div class="wd-shell">
+        <figure class="wd-media">
+          <span class="badge"><i></i>Live webinar</span>
+          <img src="{{ w.image }}" alt="{{ w.name }}" loading="eager" />
+        </figure>
+
+        <article class="wd-card">
+          <header class="wd-head">
+            {% if role == "HOST" %}
+              <span class="tag wd-host-tag" style="background: color-mix(in oklab, var(--primary) 28%, transparent)">You host this</span>
+            {% else %}
+              <span class="tag wd-host-tag">Upcoming session</span>
+            {% endif %}
+
+            <h1 class="wd-title">{{ w.name }}</h1>
+            <p class="wd-lead">{{ w.description }}</p>
+          </header>
+
+          <dl class="wd-rows">
+            <div class="wd-row">
+              <dt>Host</dt>
+              <dd>{{ host }}</dd>
+            </div>
+
+            <div class="wd-row">
+              <dt>Expires</dt>
+              <dd><time class="mono" datetime="{{ w.ticket_expiration|date:'c' }}">{{ w.ticket_expiration|date:"D j M, H:i" }}</time></dd>
+            </div>
+
+            <div class="wd-row">
+              <dt>Seats left</dt>
+              <dd><span class="seats-num">{{ w.stock }}</span></dd>
+            </div>
+
+            <div class="wd-row">
+              <dt>Price</dt>
+              <dd>
+                {% if w.price == 0 %}
+                  <span class="price-free">Free</span>
+                {% else %}
+                  ${{ w.price }}
+                {% endif %}
+              </dd>
+            </div>
+
+            <div class="wd-row">
+              <dt>Join link</dt>
+              <dd>
+                {% if role == "HOST" or role == "PARTICIPANT" %}
+                  <div class="wd-join">
+                    <a href="{{ w.link }}" target="_blank" rel="noopener">{{ w.link|default:"(no link set)" }}</a>
+                  </div>
+                {% else %}
+                  <div class="wd-join locked" aria-live="polite">🔒 Reserve a seat to reveal the join link</div>
+                {% endif %}
+              </dd>
+            </div>
+          </dl>
+
+          <div class="wd-actions">
+            {% if role == "HOST" %}
+              <a class="btn btn-primary" href="?edit=1">Edit webinar</a>
+              <form method="post" action="{% url 'webinar_delete' w.id %}" onsubmit="return confirm('Delete this webinar? This cannot be undone.');" style="display:inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-ghost">Delete</button>
+              </form>
+
+            {% elif role == "PARTICIPANT" %}
+              <span class="success-inline">✓ You're signed up</span>
+
+            {% else %}
+              {% if w.stock <= 0 %}
+                <button class="btn btn-primary" disabled>Sold out of tickets</button>
+              {% elif not user.is_authenticated %}
+                  <button class="btn btn-primary" disabled>Sign in first</button>
+              {% else %}
+                <form method="post" action="" style="display:inline">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-primary">Reserve a seat →</button>
+                </form>
+              {% endif %}
+            {% endif %}
+          </div>
+        </article>
+      </div>
+    {% endif %}
+
+  </main>
 {% endblock %}

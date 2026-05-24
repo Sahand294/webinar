@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>{% block title %}Signal — Webinars for people who actually show up{% endblock %}</title>
+    <meta name="description" content="Live digital events, intimate workshops, and on-demand replays."/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"/>
+    {% load static %}
+    <link rel="stylesheet" href="{% static "css/styles.css" %}"/>
+    {% block css %}
+
+    {% endblock %}
+</head>
+<body>
+<header class="nav">
+
+    <div class="wrap nav-inner">
+        <a class="brand" href="{% url "home" %}"><span class="dot"></span>Signal<em>.live</em></a>
+        <nav class="nav-links">
+                <a href="{% url "webinars" %}">Webinars</a>
+            {% if not user.is_authenticated %}
+                <a href="{% url "login" %}">Log in</a>
+            {% else %}
+                <a href="{% url "logout" %}">Log out</a>
+            {% endif %}
+        </nav>
+        <a class="btn btn-primary btn-sm" href="#register">Reserve seat →</a>
+    </div>
+</header>
+{% block content %}
+<section class="hero">
+    <div class="orbit orbit-a"></div>
+    <div class="orbit orbit-b"></div>
+    <div class="wrap hero-grid">
+        <div class="hero-copy rise">
+            <div class="eyebrow"><span class="dot"></span>Season 04 · Broadcasting from Berlin</div>
+            <h1>Webinars for <em>people</em><br/>who actually <em>show up.</em></h1>
+            <p class="lead">Live digital events, intimate workshops, and on-demand replays from operators, builders, and
+                researchers who say something worth blocking the calendar for.</p>
+            <div class="cta-row">
+                <a class="btn btn-primary btn-lg" href="#register">Save my seat — free <span class="arrow">→</span></a>
+                <a class="link-ul" href="#sessions">See the full lineup</a>
+            </div>
+        </div>
+
+        <aside class="card countdown rise" style="animation-delay:120ms">
+            <div class="card-head">
+                <span class="mono small muted">NEXT BROADCAST</span>
+                <span class="mono small signal">● LIVE SOON</span>
+            </div>
+            <div class="date" id="date-label">—</div>
+            <div class="muted small">Doors open 15 minutes early</div>
+            <div class="countdown-grid">
+                <div class="cd">
+                    <div class="cd-val" id="cd-d">00</div>
+                    <div class="cd-lab">DAYS</div>
+                </div>
+                <div class="cd">
+                    <div class="cd-val" id="cd-h">00</div>
+                    <div class="cd-lab">HRS</div>
+                </div>
+                <div class="cd">
+                    <div class="cd-val" id="cd-m">00</div>
+                    <div class="cd-lab">MIN</div>
+                </div>
+                <div class="cd">
+                    <div class="cd-val" id="cd-s">00</div>
+                    <div class="cd-lab">SEC</div>
+                </div>
+            </div>
+            <div class="attendees">
+                <div class="avatars">
+                    <span style="background:#76b6c4"></span>
+                    <span style="background:#5cbdb9"></span>
+                    <span style="background:#2d8a9e"></span>
+                    <span style="background:#0c2340"></span>
+                </div>
+                <span class="muted small"><strong>2,184</strong> already in</span>
+            </div>
+        </aside>
+    </div>
+</section>
+
+<div class="marquee">
+    <div class="marquee-track" id="marquee"></div>
+</div>
+
+<section id="sessions" class="wrap section">
+    <div class="section-head">
+        <div>
+            <div class="slug">/ this week</div>
+            <h2>Three rooms. <em>Pick yours.</em></h2>
+        </div>
+        <a class="link-ul" href="#register">See the full calendar →</a>
+    </div>
+    <div class="cards" id="sessions-grid"></div>
+</section>
+
+<section id="how" class="band">
+    <div class="wrap pillars-grid">
+        <div>
+            <div class="slug">/ how it runs</div>
+            <h2>We made the boring parts <em class="accent">disappear.</em></h2>
+            <p class="muted">Every Signal event is engineered around one question: would you tell a colleague to clear
+                an hour for this? If the answer is no, we don't ship it.</p>
+        </div>
+        <ol class="pillars" id="pillars"></ol>
+    </div>
+</section>
+
+<section  class="wrap section">
+{#    <div class="slug">/ on the schedule</div>#}
+{#    <h2 class="big">Hosts who'd rather be <em>specific</em> than impressive.</h2>#}
+{#    <ul class="speakers" id="speakers"></ul>#}
+</section>
+
+<section id="register" class="wrap pb">
+    <div class="register">
+        <div class="orbit orbit-c"></div>
+        <div class="orbit orbit-d"></div>
+        <div class="register-inner">
+            <div class="slug dark">/ get the link</div>
+            <h2 class="huge">One email. <em>One link.</em> Show up.</h2>
+            <p class="lead-dark">We'll send the calendar invite, a one-line agenda, and a reminder 20 minutes before
+                doors open. Nothing else, ever.</p>
+            <form id="reg-form" class="reg-form">
+                <input id="email" type="email" required placeholder="you@studio.com"/>
+                <button type="submit" id="reg-btn">Save my seat</button>
+            </form>
+            <div class="badges mono small">
+                <span>★ Free for live attendees</span>
+                <span>★ Replay pass €19</span>
+                <span>★ Cancel anytime</span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+<footer class="footer">
+    <div class="wrap footer-inner">
+        <div class="brand"><span class="dot"></span>Signal.live</div>
+        <div class="mono small muted" id="copy">© Signal Broadcasting GmbH · Berlin</div>
+        <div class="footer-links">
+            <a href="#">Twitter</a><a href="#">RSS</a><a href="#">Press</a>
+        </div>
+    </div>
+</footer>
+{% block js %}
+    <script src="{% static "js/script.js" %}"></script>
+{% endblock %}
+</body>
+</html>

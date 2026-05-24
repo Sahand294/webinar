@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from models.models import *
 # Create your views here.
+
 def webinar_detail(request, id):
     if request.method == 'POST':
         if request.POST.get('buy') == 'yes':
@@ -8,31 +9,29 @@ def webinar_detail(request, id):
             w.stock -= 1
             w.save()
             Webinar_User.objects.create(
-                user_id=User.objects.get(id=int(request.session.get('user'))),
+                user_id=User.objects.get(id=int(request.user.id)),
                 webinar_id=w,
                 role='PARTICIPANT',
             )
-        else:
+        elif request.POST.get("edit") == "yes":
             host_edit_webinar(request, id)
-
+        elif request.POST.get("delete") == "yes":
+            Webinar.objects.get(id=id).delete()
     webinar = Webinar.objects.get(id=id)
-    role = Webinar_User.objects.filter(webinar_id=id,user_id=request.session.get('user')).first()
+    category = []
+    for i in webinar.category.values():
+        category.append(i["name"])
+    host = Webinar_User.objects.filter(webinar_id=webinar.id,role="HOST").first()
+    host = User.objects.get(id=host.user_id.id)
+    host_name = f"{host.first_name[0].upper()}{host.first_name[1:]} {host.last_name[0].upper()}{host.last_name[1:]}"
+    role = Webinar_User.objects.filter(webinar_id=id,user_id=request.user.id).first()
+    if role:
+        return render(request, 'webinar.html',
+                  {'w': webinar, "user": request.user, "category": category, "host": host_name,"role":role.role})
+    else:
     # if request.method == 'POST':
     #     host_edit_webinar(request, id)
-
-    if role:
-        if request.session.get('user'):
-            print('lol')
-            return render(request, 'webinar-details.html',{'webinar':webinar,'role':role,'user':True})
-        else:
-            print('not lol')
-            return render(request, 'webinar-details.html',{'webinar':webinar,'role':role})
-    if request.session.get('user'):
-        print('lol')
-        return render(request, 'webinar-details.html',
-                      {'webinar': webinar, 'user': True})
-    else:
-        return render(request, 'webinar-details.html', {'webinar': webinar})
+        return render(request, 'webinar.html', {'w': webinar,"user":request.user,"category":category,"host":host_name})
 def host_edit_webinar(request, id):
     webinar = Webinar.objects.get(id=id)
     if request.method == 'POST':
@@ -79,7 +78,7 @@ def add_webinar(request):
             type='public',
         )
         Webinar_User.objects.create(
-            user_id=User.objects.get(id=int(request.session.get('user'))),
+            user_id=User.objects.get(id=int(request.user.id)),
             webinar_id=webinar,
             role='HOST',
         )
@@ -97,5 +96,5 @@ def add_webinar(request):
         )
 
         return redirect('webinar_detail', webinar.id)
-    users = User.objects.exclude(id=int(request.session.get('user')))
+    users = User.objects.exclude(id=int(request.user.id))
     return render(request, 'add_webinar.html',{'users':users})

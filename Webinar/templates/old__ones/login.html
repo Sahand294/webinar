@@ -1,0 +1,27 @@
+{% extends 'home.html' %}
+
+{% block extra_css %}
+{% load static %}
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/slider.css' %}">
+<link rel="stylesheet" href="{% static 'css/signupandlogin.css' %}">
+{% endblock %}
+{% block content %}
+
+
+<main>
+    <div class="card">
+        {% if error %}
+        <p style="color: var(--accent);">{{ error }}</p>
+        {% endif %}
+        <h1>Login</h1>
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" name="username" id="username" placeholder="Username" required />
+            <input type="password" name="password" id="password" placeholder="Password" required />
+            <button>Login</button>
+        </form>
+    <a href="{% url 'signup' %}" style="color: var(--accent);text-decoration: none;">Don't have an account? Sign Up</a>
+    </div>
+</main>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "index.html" %}
+{% block css %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static "css/webinar.css" %}">
+    <link rel="stylesheet" href="{% static "css/webinars.css" %}">
+{% endblock %}
+{% block content %}
+    <main id="root" class="wrap section" style="padding-top:48px"><a class="wd-back" href="./webinars.html">← All
+        webinars</a>
+
+        <article class="wd-card" id="view">
+            <header class="wd-head">
+                {% if role == "HOST" %}
+                    <span class="tag" style="background:color-mix(in oklab, var(--primary) 30%, transparent)">You host this</span>
+                {% endif %}
+                <h1 class="wd-title">{{ w.name }}</h1>
+                <p class="wd-lead">{{ w.description }}</p>
+            </header>
+
+            <dl class="wd-fields">
+                <div>
+                    <dt>Hosted at</dt>
+                    <dd>{{ w.hosted_at }}</dd>
+                </div>
+                <div>
+                    <dt>Price</dt>
+                    <dd>{{ w.price }}</dd>
+                </div>
+                <div>
+                    <dt>Tickets left</dt>
+                    <dd>{{ w.stock }}</dd>
+                </div>
+                {% if role == "PARTICIPANT" or role == "HOST" %}
+                <div class="full">
+                    <dt>Join link</dt>
+                    <dd>{{ w.link }}</dd>
+                </div>
+                {% else %}
+                <div class="full">
+                    <dt>Join link</dt>
+                    <div class="join-link locked">🔒 Reserve a seat to reveal the join link</div>
+                </div>
+                {% endif %}
+            </dl>
+
+            <div class="wd-actions">
+                {% if role %}
+                    {% if role == "HOST" %}
+                        <form method="POST">
+                            <input name="edit" value="yes" hidden>
+                            <button class="btn btn-primary" id="edit-btn" type="submit">Edit webinar</button>
+                        </form>
+                        <form method="POST">
+                            <input name="delete" value="yes" hidden>
+                            <button class="btn" id="delete-btn" type="submit">Delete</button>
+                        </form>
+                    {% elif role == "PARTICIPANT" %}
+                        <span class="success-inline">✓ You're signed up</span>`
+                    {% endif %}
+                {% else %}
+                    {% if w.stock <= 0 %}
+                        <button class="btn btn-primary" id="signup-btn" disabled>Sold out of tickets!</button>
+                    {% elif not user.is_authenticated %}
+                        <button class="btn btn-primary" id="signup-btn" disabled>Sign in to reserve seat</button>
+                    {% else %}
+                        <form method="POST">
+                            <input name="buy" value="yes" hidden>
+                            <button class="btn btn-primary" type="submit">Reserve Seat</button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </article>
+    </main>
+{% endblock %}

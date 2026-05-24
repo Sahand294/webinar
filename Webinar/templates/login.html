@@ -1,27 +1,56 @@
-{% extends 'home.html' %}
-
-{% block extra_css %}
+{% extends "index.html" %}
 {% load static %}
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    <link rel="stylesheet" href="{% static 'css/slider.css' %}">
-<link rel="stylesheet" href="{% static 'css/signupandlogin.css' %}">
+{% block css %}
+  <link rel="stylesheet" href="{% static "css/auth.css" %}" />
 {% endblock %}
 {% block content %}
+  <section class="auth-section">
+    <div class="orbit orbit-l"></div>
+    <div class="orbit orbit-b"></div>
+    <div class="wrap" style="position:relative">
+      <div class="auth-shell">
+        <div class="auth-copy">
+          <span class="eyebrow"><span class="dot"></span>Returning operator</span>
+          <h1>Welcome <em>back.</em></h1>
+          <p class="lead">Pick up where you left off — your seats, replays, and saved threads are waiting.</p>
+          <ul class="auth-points">
+            <li><span class="k">01</span><span>Resume live rooms in one click.</span></li>
+            <li><span class="k">02</span><span>Access replays from any device.</span></li>
+            <li><span class="k">03</span><span>Manage upcoming reservations.</span></li>
+          </ul>
+        </div>
+
+        <form class="auth-card" id="loginForm" method="POST" novalidate>
+        {% csrf_token %}
+          <h2>Log in</h2>
+          <p class="auth-sub">Enter your credentials to continue.</p>
+
+          <div class="success-banner" id="loginSuccess"><i></i><span>Signed in — welcome back.</span></div>
+
+          <div class="field">
+            <label for="login-email">Username</label>
+            <input id="login-email" name="username" type="text" placeholder="spiderman_123" required />
+          </div>
+          <div class="field">
+            <label for="login-password">Password</label>
+            <input id="login-password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" required />
+          </div>
 
 
-<main>
-    <div class="card">
-        {% if error %}
-        <p style="color: var(--accent);">{{ error }}</p>
-        {% endif %}
-        <h1>Login</h1>
-        <form method="post">
-            {% csrf_token %}
-            <input type="text" name="username" id="username" placeholder="Username" required />
-            <input type="password" name="password" id="password" placeholder="Password" required />
-            <button>Login</button>
+          <div class="error-text" id="loginError" aria-live="polite">
+              {% if error %}
+              Password or Username is incorrect
+              {% endif %}
+          </div>
+
+          <button class="btn btn-primary btn-lg btn-block" type="submit">Log in →</button>
+
+          <p class="auth-foot">New here? <a href="{% url "signup" %}">Create an account</a></p>
         </form>
-    <a href="{% url 'signup' %}" style="color: var(--accent);text-decoration: none;">Don't have an account? Sign Up</a>
+      </div>
     </div>
-</main>
+  </section>
+{% endblock %}
+{% block js %}
+
 {% endblock %}

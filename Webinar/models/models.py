@@ -5,18 +5,22 @@ from django.db import models
 from django.contrib.auth.hashers import make_password
 # Create your models here.
 from django.contrib.auth.models import AbstractUser
-
+class Category(models.Model):
+    name = models.CharField(max_length=20,null=True)
+    class Meta:
+        db_table = 'category'
+        verbose_name = 'category'
+        verbose_name_plural = 'categories'
 class User(AbstractUser):
     db_table = 'Users'
     # this comes and wel
 
-    age = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     gender = models.CharField(max_length=10, blank=True, null=True)
     birthdate = models.DateField(blank=True, null=True)
     class Meta:
-        db_table = 'Users'
+        db_table = 'users'
         ordering = ['created_at']# this creates
         verbose_name = 'users'
         verbose_name_plural = 'users'
@@ -32,6 +36,7 @@ class Webinar(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
     stock = models.IntegerField(blank=True, null=True)
+    category = models.ManyToManyField(Category)
     def __str__(self):
         return self.name
     class Meta:
@@ -39,6 +44,7 @@ class Webinar(models.Model):
         ordering = ['created_at']  # this creates
         verbose_name = 'webinar'
         verbose_name_plural = 'webinars'
+
 class Site_Settings(models.Model):
     key = models.CharField(max_length=100,unique=True)
     value = models.TextField()

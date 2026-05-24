@@ -1,36 +1,124 @@
-{% extends 'home.html' %}
-
-{% block extra_css %}
+{% extends "index.html" %}
 {% load static %}
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    <link rel="stylesheet" href="{% static 'css/slider.css' %}">
-<link rel="stylesheet" href="{% static 'css/signupandlogin.css' %}">
+{% block css %}
+  <link rel="stylesheet" href="{% static "css/auth.css" %}" />
 {% endblock %}
 {% block content %}
+  <section class="auth-section">
+    <div class="orbit orbit-l"></div>
+    <div class="orbit orbit-b"></div>
+    <div class="wrap" style="position:relative">
+      <div class="auth-shell">
+        <div class="auth-copy">
+          <span class="eyebrow"><span class="dot"></span>New broadcast incoming</span>
+          <h1>Reserve your <em>seat.</em></h1>
+          <p class="lead">Create your account in under a minute and lock in your spot at upcoming live rooms.</p>
+          <ul class="auth-points">
+            <li><span class="k">01</span><span>Free for your first three events.</span></li>
+            <li><span class="k">02</span><span>Replays delivered straight to your inbox.</span></li>
+            <li><span class="k">03</span><span>Cancel anytime — no fluff.</span></li>
+          </ul>
+        </div>
 
+        <form class="auth-card" id="signupForm" method="POST" novalidate>
+        {% csrf_token %}
+          <h2>Create account</h2>
+          <p class="auth-sub">Tell us a bit about you.</p>
 
-<main>
-    <div class="card">
-        {% if error %}
-        <p style="color: var(--accent);">{{ error }}</p>
-        {% endif %}
-        <h1>Signup</h1>
-        <form method="post">
-            {% csrf_token %}
-            <input type="text" name="first_name" id="first_name" placeholder="First Name" required />
-            <input type="text" name="last_name" id="last_name" placeholder="Last Name" required />
-            <input type="text" name="username" id="username" placeholder="Username" required />
-            <select name="gender" required>
-                <option value="">Gender</option>
-                <option value="male">Male</option>
+          <div class="success-banner" id="signupSuccess"><i></i><span>Account created — welcome aboard.</span></div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="firstName">First name</label>
+              <input id="firstName" name="firstname" type="text" placeholder="Ada" autocomplete="given-name" required />
+            </div>
+            <div class="field">
+              <label for="lastName">Last name</label>
+              <input id="lastName" name="lastname" type="text" placeholder="Lovelace" autocomplete="family-name" required />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" placeholder="ada_l" required />
+          </div>
+
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="you@signal.live" autocomplete="email" required />
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="birthday">Birthday</label>
+              <input id="birthday" name="birthday" type="date" required />
+            </div>
+            <div class="field">
+              <label for="gender">Gender</label>
+              <select id="gender" name="gender" required>
+                <option value="" disabled selected>Select…</option>
                 <option value="female">Female</option>
-            </select>
-            <input type="number" name="age" id="age" placeholder="Age" min="1" required />
-            <input type="email" name="email" id="email" placeholder="Email" required />
-            <input type="password" name="password" id="password" placeholder="Password" required />
-            <input type="password" name="password_confirm" id="password_confirm" placeholder="Confirm Password" required />
-            <button>Create Account</button>
+                <option value="male">Male</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" placeholder="At least 8 characters" autocomplete="new-password" required />
+          </div>
+          <div class="field">
+            <label for="confirm">Confirm password</label>
+            <input id="confirm" name="confirm" type="password" placeholder="Re-enter password" autocomplete="new-password" required />
+          </div>
+
+          <div class="error-text" id="signupError" aria-live="polite">
+              {% if error %}
+              {{ error }}
+              {% endif %}
+          </div>
+
+          <button class="btn btn-primary btn-lg btn-block" type="submit">Create account →</button>
+
+          <p class="auth-foot">Already have an account? <a href="{% url "login" %}">Log in</a></p>
         </form>
+      </div>
     </div>
-</main>
+  </section>
+{% endblock %}
+{% block js %}
+  <script>
+    document.getElementById('signupForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var err = document.getElementById('signupError');
+      var ok = document.getElementById('signupSuccess');
+      err.textContent = '';
+      ok.classList.remove('show');
+
+      var d = new FormData(this);
+      var firstName = (d.get('firstName') || '').toString().trim();
+      var lastName  = (d.get('lastName')  || '').toString().trim();
+      var username  = (d.get('username')  || '').toString().trim();
+      var email     = (d.get('email')     || '').toString().trim();
+      var birthday  = (d.get('birthday')  || '').toString();
+      var gender    = (d.get('gender')    || '').toString();
+      var password  = (d.get('password')  || '').toString();
+      var confirm   = (d.get('confirm')   || '').toString();
+
+      {#if (!firstName || !lastName || !username || !email || !birthday || !gender || !password || !confirm) {#}
+      {#  err.textContent = 'All fields are required.'; return;#}
+      {#}#}
+      if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+        err.textContent = 'Username must be 3–20 chars (letters, numbers, underscore).'; return;
+      }
+      if (!/^\S+@\S+\.\S+$/.test(email)) { err.textContent = 'Enter a valid email address.'; return; }
+      if (password.length < 8) { err.textContent = 'Password must be at least 8 characters.'; return; }
+      if (password !== confirm) { err.textContent = 'Passwords do not match.'; return; }
+      this.submit()
+      console.log('signup payload', { firstName, lastName, username, email, birthday, gender });
+      ok.classList.add('show');
+
+      this.reset();
+    });
+  </script>
 {% endblock %}
