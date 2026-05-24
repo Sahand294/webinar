@@ -49,10 +49,12 @@ def webinar(request):
 
 def get_webinar_by_js(request):
     page = request.GET.get("page", 1)
-
+    # For search
+    q = request.GET.get("q", "").strip()
     # webinars = Webinar.objects.prefetch_related("category").all()
     webinars = Webinar.objects.order_by("name")
-
+    if q:
+        webinars = webinars.filter(name__icontains=q)
     paginator = Paginator(webinars, 10)
 
     current_page = paginator.get_page(page)
