@@ -32,29 +32,27 @@ from django.http import JsonResponse
 def webinar(request):
     page = request.GET.get("page", 1)
 
-    # webinars = Webinar.objects.prefetch_related("category").all()
-    webinars = Webinar.objects.order_by("name")
+    webinars = Webinar.objects.prefetch_related("category")
 
     paginator = Paginator(webinars, 1)
 
     current_page = paginator.get_page(page)
-
-    # AJAX REQUEST
 
     print("current page ", current_page)
     return render(request, "webinars.html", {
         "webinars": current_page
     })
 
-
-# Test that sahand if not work do not merge that!! I add all filter in backend doing
 def get_webinar_by_js(request):
     page = request.GET.get("page", 1)
     q = request.GET.get("q", "").strip()
     cats = request.GET.getlist("cats") 
     price = request.GET.get("price", "any")
     
+    webinars = Webinar.objects.prefetch_related("category").order_by("name"
+
     webinars = Webinar.objects.prefetch_related("category").order_by("name")
+
     if q:
         webinars = webinars.filter(name__icontains=q)
 
