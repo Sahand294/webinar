@@ -1,6 +1,7 @@
 {% extends "index.html" %}
 {% load static %}
-{% block title %} Webinars {% endblock %}{% block css %}
+{% block title %} Webinars {% endblock %}
+{% block css %}
     <link rel="stylesheet" href="{% static "css/webinars.css" %}"/>
 {% endblock %}
 {% block content %}
@@ -8,7 +9,7 @@
         <div class="orbit orbit-a"></div>
         <div class="orbit orbit-b"></div>
         <div class="wrap rise" style="padding:64px 24px 32px">
-            <div class="eyebrow"><span class="dot"></span>Browse · 12 upcoming rooms</div>
+            <div class="eyebrow"><span class="dot"></span>Browse · upcoming rooms</div>
             <h1 style="font-size:clamp(40px,6vw,84px);margin-top:16px;line-height:0.95">All webinars, <em
                     class="accent">your filter.</em></h1>
             <p class="lead">Search by topic, narrow by category, pick a price that fits. Reserve the ones you'll
@@ -23,41 +24,41 @@
                     <circle cx="11" cy="11" r="7"/>
                     <path d="m20 20-3.5-3.5"/>
                 </svg>
-                <input id="q" type="search" placeholder="Search title, host, or topic…"/>
+                <input id="q" type="search" placeholder="Search title, host, or topic… (press Enter or Apply)"/>
             </div>
+
             <div class="filter-row">
                 <div class="filter-label mono small muted">CATEGORY</div>
                 <div class="pills" id="cat-pills"></div>
             </div>
+
             <div class="filter-row">
                 <div class="filter-label mono small muted">PRICE</div>
                 <div class="pills" id="price-pills"></div>
+            </div>
+
+            <div class="filter-row">
+                <button class="btn btn-primary apply-btn" id="apply-btn">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                    </svg>
+                    Apply Filters
+                </button>
             </div>
         </div>
 
         <div class="results-meta mono small muted" id="meta">—</div>
         <div class="cards" id="grid"></div>
-        <input
-                type="hidden"
-                id="current-page"
-                value="{{ webinars.number }}"
-        >
 
-        <input
-                type="hidden"
-                id="has-next"
-                value="{{ webinars.has_next|yesno:'true,false' }}"
-        >
+        <input type="hidden" id="current-page"  value="{{ webinars.number }}">
+        <input type="hidden" id="has-next"       value="{{ webinars.has_next|yesno:'true,false' }}">
+        <input type="hidden" id="has-previous"   value="{{ webinars.has_previous|yesno:'true,false' }}">
 
-        <input
-                type="hidden"
-                id="has-previous"
-                value="{{ webinars.has_previous|yesno:'true,false' }}"
-        >
         <div class="pagination">
-            <button id="prev-btn" class="btn">Previous</button>
-            <button id="next-btn" class="btn">Next</button>
+            <button id="prev-btn" class="btn">&#8592; Previous</button>
+            <button id="next-btn" class="btn">Next &#8594;</button>
         </div>
+
         <div id="empty" class="empty" hidden>
             <h3>No webinars match.</h3>
             <p class="muted">Try a broader search or clear a filter.</p>
@@ -69,21 +70,20 @@
         let WEBINARS = [
             {% for webinar in webinars %}
                 {
-                    title: "{{ webinar.name|escapejs }}",
-                    id: "{{ webinar.id|escapejs }}",
-                    blurb: "{{ webinar.description|escapejs }}",
-                    price: {{ webinar.price }},
-                    when: "{{ webinar.hosted_at|date:'M d, Y · g:i A' }}",
+                    title:     "{{ webinar.name|escapejs }}",
+                    id:        "{{ webinar.id|escapejs }}",
+                    blurb:     "{{ webinar.description|escapejs }}",
+                    price:     {{ webinar.price }},
+                    when:      "{{ webinar.hosted_at|date:'M d, Y · g:i A' }}",
                     seatsLeft: {{ webinar.stock|default:0 }},
-                    link: "{{ webinar.link }}",
-                    image: "{% if webinar.title_image %}{{ webinar.title_image.url }}{% endif %}",
-
+                    link:      "{{ webinar.link }}",
+                    image:     "{% if webinar.title_image %}{{ webinar.title_image.url }}{% endif %}",
                     categories: [
                         {% for cat in webinar.category.all %}
                             "{{ cat.name|lower }}"{% if not forloop.last %},{% endif %}
                         {% endfor %}
                     ]
-                },
+                }{% if not forloop.last %},{% endif %}
             {% endfor %}
         ];
     </script>

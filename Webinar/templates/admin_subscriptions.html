@@ -77,6 +77,9 @@
       </div>
     </div>
 
+
+    {# standalone CSRF token for JS pagination row renders #}
+    <form id="csrf-holder" style="display:none">{% csrf_token %}</form>
   </main>
 {% endblock %}
 {% block js %}

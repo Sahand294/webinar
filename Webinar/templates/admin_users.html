@@ -180,7 +180,10 @@
             </div>
         </div>
 
-    </main>
+  
+    {# standalone CSRF token for JS pagination row renders #}
+    <form id="csrf-holder" style="display:none">{% csrf_token %}</form>
+  </main>
 {% endblock %}
 {% block js %}
     <script src="{% static 'js/admin_users.js' %}"></script>

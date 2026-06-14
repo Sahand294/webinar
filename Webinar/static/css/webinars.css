@@ -80,3 +80,38 @@
 .empty h3 { font-size: 32px; margin-bottom: 8px; }
 
 .section { padding-bottom: 96px; }
+
+/* ── Apply Filters button ───────────────────────────────────────── */
+.apply-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  font-size: 14px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 0 0 0 color-mix(in oklab, var(--primary) 40%, transparent);
+  transition: transform .15s, box-shadow .15s, background .15s;
+}
+.apply-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px color-mix(in oklab, var(--primary) 35%, transparent);
+}
+.apply-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+.apply-btn svg {
+  flex-shrink: 0;
+  transition: transform .2s;
+}
+.apply-btn:hover svg {
+  transform: rotate(-10deg) scale(1.15);
+}
