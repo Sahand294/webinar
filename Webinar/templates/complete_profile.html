@@ -1,0 +1,79 @@
+{% extends "index.html" %}
+{% load static %}
+{% block css %}
+  <link rel="stylesheet" href="{% static "css/auth.css" %}" />
+{% endblock %}
+{% block content %}
+  <section class="auth-section">
+    <div class="orbit orbit-l"></div>
+    <div class="orbit orbit-b"></div>
+    <div class="wrap" style="position:relative">
+      <div class="auth-shell">
+        <div class="auth-copy">
+          <span class="eyebrow"><span class="dot"></span>One more step</span>
+          <h1>Finish setting up <em>your profile.</em></h1>
+          <p class="lead">We just need a couple more details to personalize your reservations and reminders.</p>
+          <ul class="auth-points">
+            <li><span class="k">01</span><span>Helps us recommend the right rooms.</span></li>
+            <li><span class="k">02</span><span>Used only for your account, never shared.</span></li>
+            <li><span class="k">03</span><span>Takes about ten seconds.</span></li>
+          </ul>
+        </div>
+
+        <form class="auth-card" id="completeProfileForm" method="POST" novalidate>
+        {% csrf_token %}
+          <h2>Complete your profile</h2>
+          <p class="auth-sub">Just your birthday and gender to finish up.</p>
+
+          <div class="success-banner" id="completeSuccess"><i></i><span>Profile updated — taking you to your account.</span></div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="birthday">Birthday</label>
+              <input id="birthday" name="birthday" type="date" required />
+            </div>
+            <div class="field">
+              <label for="gender">Gender</label>
+              <select id="gender" name="gender" required>
+                <option value="" disabled selected>Select…</option>
+                <option value="female">Female</option>
+                <option value="male">Male</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="error-text" id="completeError" aria-live="polite">
+              {% if error %}
+              {{ error }}
+              {% endif %}
+          </div>
+
+          <button class="btn btn-primary btn-lg btn-block" type="submit">Save and continue →</button>
+
+          <p class="auth-foot">You can update these anytime from <a href="{% url "account" %}">your account</a>.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+{% block js %}
+  <script>
+    document.getElementById('completeProfileForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var err = document.getElementById('completeError');
+      var ok = document.getElementById('completeSuccess');
+      err.textContent = '';
+      ok.classList.remove('show');
+
+      var d = new FormData(this);
+      var birthday = (d.get('birthday') || '').toString();
+      var gender   = (d.get('gender')   || '').toString();
+
+      if (!birthday) { err.textContent = 'Please select your birthday.'; return; }
+      if (!gender)   { err.textContent = 'Please select your gender.'; return; }
+
+      ok.classList.add('show');
+      this.submit();
+    });
+  </script>
+{% endblock %}

@@ -21,7 +21,7 @@
   <main class="wrap section">
     <a class="wc-back" href="{% url 'webinars' %}">← All webinars</a>
 
-    <form class="wc-shell" id="createForm" method="post" action="{% url 'create_webinar' %}">
+    <form class="wc-shell" id="createForm" method="post" action="{% url 'create_webinar' %}" enctype="multipart/form-data">
       {% csrf_token %}
 
       {% if error %}
@@ -36,7 +36,7 @@
 
           <div class="field">
             <label for="wc-title">Title</label>
-            <input id="wc-title" name="title" type="text"
+            <input id="wc-title" name="name" type="text"
               value="{{ form.title.value|default:'' }}"
               placeholder="e.g. Building design systems that scale"
               required />
@@ -74,6 +74,31 @@
             <!-- hidden input that submits comma-separated IDs -->
             <input type="hidden" id="wc-category" name="category" value="{{ form.category.value|default:'' }}" />
             <span class="field-hint">Pick one or more.</span>
+          </div>
+
+          <!-- COVER IMAGE -->
+          <div class="field">
+            <label for="wc-image">Cover image</label>
+
+            <div class="wc-image-drop" id="wc-image-drop">
+              <input id="wc-image" name="title_image" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+
+              <div class="wc-image-empty" id="wc-image-empty">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                  <rect x="3" y="5" width="18" height="14" rx="2"/>
+                  <circle cx="9" cy="10.5" r="1.6"/>
+                  <path d="m21 16-5.2-5.2a2 2 0 0 0-2.8 0L4 19"/>
+                </svg>
+                <span><strong>Click to upload</strong> or drag an image here</span>
+                <span class="wc-image-sub">PNG, JPG or WEBP — recommended 16:7</span>
+              </div>
+
+              <div class="wc-image-preview" id="wc-image-preview" hidden>
+                <img id="wc-image-preview-img" alt="Cover image preview" />
+                <button type="button" class="wc-image-remove" id="wc-image-remove" aria-label="Remove image">×</button>
+              </div>
+            </div>
+            <span class="field-hint">Shown at the top of your webinar card. Optional, but it gets more sign-ups.</span>
           </div>
         </div>
 
@@ -123,6 +148,16 @@
           <div class="wc-card-label">Live preview</div>
           <div class="w-card" id="preview-card">
             <div class="w-card-glow"></div>
+            <div class="w-preview-image" id="prev-image-wrap">
+              <img id="prev-image" alt="" hidden />
+              <div class="w-preview-image-empty" id="prev-image-empty">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                  <rect x="3" y="5" width="18" height="14" rx="2"/>
+                  <circle cx="9" cy="10.5" r="1.6"/>
+                  <path d="m21 16-5.2-5.2a2 2 0 0 0-2.8 0L4 19"/>
+                </svg>
+              </div>
+            </div>
             <div class="w-top">
               <span class="tag" id="prev-category">Live</span>
               <span class="price free" id="prev-price">Free</span>

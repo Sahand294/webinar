@@ -94,6 +94,14 @@ TEMPLATES = [
         },
     },
 ]
+# settings.py
+# Path to the folder where files will be stored
+MEDIA_URL = '/webinar_images/'  # URL to access the files
+MEDIA_ROOT = os.path.join(BASE_DIR, 'webinar_images')  # Path for storing files on the server
+
+# File size limit (optional)
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
+
 
 WSGI_APPLICATION = 'Webinar.wsgi.application'
 

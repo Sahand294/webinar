@@ -1,6 +1,24 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from models.models import *
+from webinars.forms import WebinarForm
+
+
 # Create your views here.
+# DECORATOR MODEL DOWN THERE 👇
+# from django.http import HttpResponseForbidden
+# from functools import wraps
+#
+# def verified_user_required(view_func):
+#     @wraps(view_func)
+#     def wrapper(request, *args, **kwargs):
+#         if not request.user.is_authenticated:
+#             return HttpResponseForbidden("لطفا وارد شوید")
+#         if not request.user.profile.is_verified:
+#             return HttpResponseForbidden("حساب کاربری شما تایید نشده")
+#         return view_func(request, *args, **kwargs)
+#     return wrapper
+
 def delete_webinar(request,id):
     webinar = Webinar.objects.get(id=id)
     webinar.delete()
@@ -64,22 +82,25 @@ def edit_webinar(request, id):
         role = Webinar_User.objects.filter(webinar_id=id).first()
         return render(request, 'webinar.html',{'w':webinar,'role':role.role})
     # return render(request, 'host-edit-webinar.html',{'webinar':webinar})
+
+@login_required
 def add_webinar(request):
     if request.user.is_authenticated:
         user = User.objects.get(id=request.user.id)
         if user.birthdate is None or user.gender is None:
             return redirect("complete")
+    else:
+        return redirect("home")
     if request.method == 'POST':
-
-        name = request.POST.get('title')
-        description = request.POST.get('description')
-        # image = request.FILES['image']
-        hosted_at = request.POST.get('hosted_at')
-        link = request.POST.get('link')
-        ticket_expiration = request.POST.get('ticket_expiration')
-        # type = request.POST.get('type')
-        price = request.POST.get('price')
-        stock = request.POST.get('stock')
+        form = WebinarForm(request.POST, request.FILES)
+        name = form.cleaned_data.get('name')
+        description = form.cleaned_data.get('description')
+        link = form.cleaned_data.get('link')
+        price = form.cleaned_data.get('price')
+        stock = form.cleaned_data.get('stock')
+        image = form.cleaned_data.get("title_image")
+        hosted_at = form.cleaned_data.get("hosted_at")
+        ticket_expiration = form.cleaned_data.get("ticket_expiration")
         webinar = Webinar.objects.create(
             name=name,
             description=description,

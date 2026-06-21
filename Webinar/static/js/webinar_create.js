@@ -85,6 +85,73 @@
   const existingVal = document.getElementById("wc-category")?.value || "";
   initCatSelect("wc-cat-select", "wc-category", "prev-category", existingVal);
 
+  // ---- cover image upload ----
+  const imgDrop      = document.getElementById("wc-image-drop");
+  const imgInput     = document.getElementById("wc-image");
+  const imgEmpty     = document.getElementById("wc-image-empty");
+  const imgPreview   = document.getElementById("wc-image-preview");
+  const imgPreviewEl = document.getElementById("wc-image-preview-img");
+  const imgRemoveBtn = document.getElementById("wc-image-remove");
+
+  const prevImage      = document.getElementById("prev-image");
+  const prevImageEmpty = document.getElementById("prev-image-empty");
+
+  function showImageFile(file) {
+    if (!file || !file.type.startsWith("image/")) return;
+    const url = URL.createObjectURL(file);
+
+    imgPreviewEl.src = url;
+    imgEmpty.hidden   = true;
+    imgPreview.hidden = false;
+
+    prevImage.src    = url;
+    prevImage.hidden = false;
+    prevImageEmpty.hidden = true;
+  }
+
+  function clearImageFile() {
+    imgInput.value = "";
+    imgPreviewEl.src = "";
+    imgEmpty.hidden   = false;
+    imgPreview.hidden = true;
+
+    prevImage.src     = "";
+    prevImage.hidden  = true;
+    prevImageEmpty.hidden = false;
+  }
+
+  imgDrop.addEventListener("click", (e) => {
+    if (e.target.closest(".wc-image-remove")) return;
+    imgInput.click();
+  });
+  imgInput.addEventListener("change", () => {
+    if (imgInput.files && imgInput.files[0]) showImageFile(imgInput.files[0]);
+  });
+
+  imgRemoveBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    clearImageFile();
+  });
+
+  ["dragenter", "dragover"].forEach(evt => {
+    imgDrop.addEventListener(evt, (e) => {
+      e.preventDefault();
+      imgDrop.classList.add("drag-over");
+    });
+  });
+  ["dragleave", "drop"].forEach(evt => {
+    imgDrop.addEventListener(evt, (e) => {
+      e.preventDefault();
+      imgDrop.classList.remove("drag-over");
+    });
+  });
+  imgDrop.addEventListener("drop", (e) => {
+    const file = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (!file) return;
+    imgInput.files = e.dataTransfer.files;
+    showImageFile(file);
+  });
+
   // ---- live preview ----
   const prevTitle = document.getElementById("prev-title");
   const prevDesc  = document.getElementById("prev-desc");
