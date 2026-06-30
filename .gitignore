@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual Environment
+.venv/
+venv/
+
+# Environment
+.env
+
+db.sqlite3
+
+# Media
+media/
+webinar_images/webinar_images
+
+# IDE
+.idea/
+.vscode/
