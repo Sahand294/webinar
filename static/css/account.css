@@ -147,7 +147,21 @@ a.w-card:hover {
   font-size: 13px; line-height: 1.6;
   color: var(--muted-fg); flex: 1;
 }
-
+.w-image {
+  width: calc(100% + 44px);
+  margin: -22px -22px 0;
+  aspect-ratio: 16 / 7;
+  object-fit: cover; display: block;
+  border-bottom: 1px solid var(--border);
+}
+.w-image.placeholder {
+  display: flex; align-items: center; justify-content: center;
+  color: color-mix(in oklab, var(--primary) 70%, var(--muted-fg));
+  background: linear-gradient(135deg,
+    color-mix(in oklab, var(--primary) 16%, var(--card)),
+    color-mix(in oklab, var(--signal) 12%, var(--card)));
+}
+.w-image.placeholder svg { opacity: .55; }
 /* ---- host stats ---- */
 .host-stats {
   display: grid; grid-template-columns: 1fr 1fr; gap: 10px;

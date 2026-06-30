@@ -38,7 +38,17 @@
         <div class="cards">
           {% for w in joined %}
             <a class="w-card" href="{% url 'webinar_detail' w.id %}">
-            <img src="{% if w.title_image %}{{ w.title_image.url }}{% else %}#{% endif %}" alt="{{ w.name }}" loading="eager"/>
+              {% if w.title_image %}
+                <img src="{{ w.title_image.url }}" class="w-image" alt="{{ w.name }}" loading="eager"/>
+              {% else %}
+                <div class="w-image placeholder">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                    <rect x="3" y="5" width="18" height="14" rx="2"/>
+                    <circle cx="9" cy="10.5" r="1.6"/>
+                    <path d="m21 16-5.2-5.2a2 2 0 0 0-2.8 0L4 19"/>
+                  </svg>
+                </div>
+              {% endif %}
               <div class="w-card-glow"></div>
               <div class="w-top">
                 <span class="tag">{{ w.category|default:"Live" }}</span>
@@ -81,10 +91,20 @@
             </button>
           {% for w in hosted %}
             <div class="w-card host-card">
+              {% if w.title_image %}
+                <img src="{{ w.title_image.url }}" class="w-image" alt="{{ w.name }}"/>
+              {% else %}
+                <div class="w-image placeholder">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                    <rect x="3" y="5" width="18" height="14" rx="2"/>
+                    <circle cx="9" cy="10.5" r="1.6"/>
+                    <path d="m21 16-5.2-5.2a2 2 0 0 0-2.8 0L4 19"/>
+                  </svg>
+                </div>
+              {% endif %}
               <div class="w-card-glow"></div>
               <div class="w-top">
                 <span class="tag host-tag">● HOST</span>
-              <img src="{% if w.title_image %}{{ w.title_image.url }}{% else %}#{% endif %}" alt="{{ w.name }}" loading="eager"/>
                 <span class="price {% if w.price == 0 %}free{% endif %}">
                   {% if w.price == 0 %}Free{% else %}${{ w.price }}{% endif %}
                 </span>
